@@ -38,11 +38,11 @@ CAVEATS -- read these before quoting any number this script prints
    from a single manufacturer). The "testing with a driver" files carry the
    row counts needed to estimate cluster sizes, at the cost of describing a
    different event class.
+4. Manufacturers with very few reported events give unstable estimates; the
+   script flags rows with fewer than 30 events.
 5. Even the larger files cover few manufacturers. Treat the output as an
    illustrative anchor for those specific test fleets, not as an
    industry-wide design effect.
-4. Manufacturers with very few reported events give unstable estimates; the
-   script flags rows with fewer than 30 events.
 """
 
 import csv
