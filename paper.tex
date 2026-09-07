@@ -39,11 +39,20 @@ empirical-Bayes shrinkage weights of the form $n/(n+k)$ over-weight noisy local
 estimates, costing up to $7.8\times$ in mean squared error in our study. We give
 a correction that substitutes an effective sample size $n_{\text{eff}} = n/\hat{D}$,
 where $\hat{D}$ is estimated from the logs themselves, and show by simulation
-that it restores nominal coverage across the range studied. \textbf{All results
-in this paper are obtained on synthetic data; no real fleet data is used.} We
-identify the specific public data sources in which $\hat{D}$ could be measured
-and describe the procedure, but we do not carry out that measurement here.
-This is an independent preprint and has not been peer reviewed.
+that it restores nominal coverage across the range studied. We then measure
+$\hat{D}$ on public California DMV autonomous vehicle disengagement reports.
+Pooled across fleets it is $4.79$ for 2023 and $5.29$ for 2024, and per-fleet
+estimates range from $1.00$ to $13.77$ --- so the design effect is neither
+negligible nor a constant that can be assumed. As a negative control we repeat
+the measurement on NHTSA Standing General Order driverless incident reports,
+where the vehicle-day design effect is $1.02$: the estimator returns unity when
+events genuinely do not recur on the clustering unit, which both supports the
+larger values and scopes the correction to the event classes that do recur.
+\textbf{The simulation study uses synthetic data. The measured design effects
+come from regulatory filings, and the two sources describe different event
+classes --- safety-driver disengagements and driverless reportable incidents ---
+which is the distinction the negative control turns on.} This is an independent
+preprint and has not been peer reviewed.
 \end{abstract}
 
 \section{Introduction}
@@ -98,6 +107,12 @@ before the evidence supports it.
 \item We give a correction based on an effective sample size that is estimable
 from fields fleets already log, and show it restores nominal coverage
 (Sections~\ref{sec:correction} and~\ref{sec:simulation}).
+\item We measure $\hat{D}$ on public California DMV disengagement filings for
+2023 and 2024, covering twelve fleets, and find pooled values near $5$ with
+per-fleet values spanning $1.00$ to $13.77$ (Section~\ref{sec:practice}).
+\item We repeat the measurement on NHTSA driverless incident reports as a
+negative control, obtain $\hat{D} = 1.02$ at the vehicle-day, and use it to scope
+the claim (Section~\ref{sec:negcontrol}).
 \end{enumerate}
 
 We are explicit about what this is not. The design effect is textbook survey
@@ -406,7 +421,7 @@ Mean cluster size & $D$ & MSE, nominal $n$ & MSE, effective $n$ & Ratio \\
 \end{tabular}
 \end{table}
 
-\section{Estimating the Design Effect in Practice}
+\section{Design Effects Measured on Public Fleet Data}
 \label{sec:practice}
 
 Nothing in Section~\ref{sec:correction} requires new instrumentation, and this is
@@ -421,23 +436,159 @@ identification number, whether a driver was present, what initiated the
 disengagement, the road type, and a free-text description of the cause. The date
 and vehicle identifier together define a vehicle-day, which is a natural and
 conservative cluster unit: events logged by the same vehicle on the same day are
-candidates for sharing an underlying context. Computing~\eqref{eq:dhat} over
-vehicle-day clusters, per manufacturer and per year, would yield an empirical
-distribution of design effects for real fleets.
+candidates for sharing an underlying context.
 
-\paragraph{NHTSA Standing General Order reporting.} Incident reports filed under
-Standing General Order 2021-01~\cite{nhtsa_sgo} carry date, location, and reporting
-entity fields that support a coarser but broader clustering by location and
-reporting period.
+\subsection{Measured design effects}
 
-We have deliberately not carried out these computations here. Doing so requires
-care that is beyond the scope of a methodological note: reporting practice varies
-substantially across manufacturers and years, some filings aggregate rather than
-enumerate, and the choice of cluster unit is itself a modelling decision that
-should be justified against the failure mode under study rather than chosen for
-convenience. We flag this as the single most valuable extension of this work, and
-we note that it would convert every design effect in Section~\ref{sec:simulation}
-from an assumed value into a measured one.
+We computed~\eqref{eq:dhat} over vehicle-day clusters for the 2023 and 2024
+testing-with-a-driver filings, retaining fleets with at least $30$ reported
+events in a year. This covers $6{,}562$ events across $2{,}989$ vehicle-days in
+2023 and $1{,}773$ events across $981$ vehicle-days in 2024. Rows with blank
+manufacturer, date, or vehicle identifier were excluded; in both files every
+such row was entirely empty, an artefact of the export, so no reported event was
+discarded. Results are in Table~\ref{tab:empirical}.
+
+\begin{table}[htbp]
+\centering
+\caption{Design effects estimated from California DMV disengagement reports,
+using the vehicle-day as the cluster unit. Fleets with fewer than $30$ reported
+events in a year are shown as ``--''. These are safety-driver disengagements,
+not driverless safety events; see the caveats below.}
+\label{tab:empirical}
+\begin{tabular}{lrrrr}
+\toprule
+& \multicolumn{2}{c}{2023} & \multicolumn{2}{c}{2024} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Fleet & Events & $\hat{D}$ & Events & $\hat{D}$ \\
+\midrule
+Apple & 3,194 & 3.44 & 285 & 1.60 \\
+Ghost Autonomy & 1,034 & 7.73 & 351 & 13.77 \\
+aiMotive & 708 & 8.02 & 188 & 8.31 \\
+Motional AD & 593 & 5.25 & 320 & 2.84 \\
+Bosch & 314 & 6.37 & 77 & 5.88 \\
+Waymo & 212 & 1.04 & 244 & 1.19 \\
+Qualcomm Technologies & 197 & 1.65 & -- & -- \\
+IMAGRY & 124 & 2.81 & 136 & 4.44 \\
+Nuro & 47 & 1.13 & 103 & 1.10 \\
+Aurora Operations & 47 & 12.53 & -- & -- \\
+Woven by Toyota & 42 & 1.00 & -- & -- \\
+Zoox & -- & -- & 34 & 1.00 \\
+\midrule
+\textbf{Pooled, all fleets} & \textbf{6,562} & \textbf{4.79} &
+\textbf{1,773} & \textbf{5.29} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three observations. First, the pooled design effect is close to $5$ in both
+years, near the upper end of the range explored in
+Section~\ref{sec:simulation}; at that value a nominal $95\%$ interval covers
+roughly $62\%$, and required mileage is understated fivefold. Second, and more
+important, $\hat{D}$ is \emph{not} a constant: it spans $1.00$ to $13.77$ across
+fleets. Some fleets --- Waymo, Nuro, Woven by Toyota, Zoox --- report events that
+are close to unclustered, and for them the independence assumption is nearly
+harmless. Others --- Aurora, Ghost Autonomy, aiMotive --- show design effects
+above $8$, where the naive interval is badly optimistic. This is the strongest
+argument in the paper for measuring $D$ rather than assuming any value for it,
+including the values used in our own simulation. Third, several fleets are stable
+across years (aiMotive $8.02 \to 8.31$, Bosch $6.37 \to 5.88$, Waymo
+$1.04 \to 1.19$, Nuro $1.13 \to 1.10$), which suggests $\hat{D}$ is picking up
+something persistent about how a given programme operates and logs rather than
+year-specific noise; others move substantially (Apple $3.44 \to 1.60$, Ghost
+$7.73 \to 13.77$), and we cannot say from these data whether that reflects
+changed operations or changed reporting.
+
+\subsection{Caveats on these figures}
+
+These estimates should not be read as design effects for driverless deployments,
+for four reasons.
+
+\begin{enumerate}
+\item \textbf{Event class.} These are disengagements during testing with a safety
+driver. A safety driver's interventions are not the same object as a driverless
+system's safety-relevant events, and we have no basis here for assuming the
+clustering transfers.
+\item \textbf{Reporting practice.} Filing conventions differ across
+manufacturers and years. A fleet reporting at coarser granularity would show a
+lower $\hat{D}$ for reasons having nothing to do with its driving. We cannot
+distinguish this from genuinely unclustered events, which is a specific concern
+for the fleets reporting $\hat{D} \approx 1$.
+\item \textbf{Cluster unit.} The vehicle-day is one defensible choice. Grouping
+instead by road type, by location, or by cause text would give different
+partitions and different design effects. The appropriate unit depends on the
+failure mode under study.
+\item \textbf{Coverage.} Twelve fleets in two years is an illustrative sample,
+not a census, and the fleets with the largest event counts dominate the pooled
+figure.
+\end{enumerate}
+
+What the table does establish is narrower and, we think, sufficient for the
+paper's purpose: design effects substantially greater than one occur in real
+regulatory filings of autonomous vehicle events, they vary widely across
+programmes, and they are computable from data that already exists.
+
+\subsection{A negative control: driverless incident reports}
+\label{sec:negcontrol}
+
+The California filings describe disengagements under a safety driver. Incident
+reports filed under NHTSA Standing General Order
+2021-01~\cite{nhtsa_sgo} cover driverless operation, and so speak more directly
+to the event class of interest. We applied the same procedure to them.
+
+Two deduplication steps are necessary first, because the SGO file is a report
+log rather than an event log. An incident is amended over time, producing
+several rows that share a Report ID at increasing Report Version; and one
+physical event may be reported by more than one entity, which NHTSA links with a
+Same Incident ID. Counting raw rows would measure how often entities file, not
+how often events occur. Of $1{,}365$ rows, $1{,}324$ remain after keeping the
+latest version of each report and $1{,}323$ after collapsing shared incident
+identifiers.
+
+At the vehicle-day the design effect is essentially one (Table~\ref{tab:sgo}).
+
+\begin{table}[htbp]
+\centering
+\caption{Design effects from NHTSA SGO driverless incident reports, vehicle-day
+clusters, after deduplication.}
+\label{tab:sgo}
+\begin{tabular}{lrrrr}
+\toprule
+Reporting entity & Events & Clusters & Mean $K$ & $\hat{D}$ \\
+\midrule
+Waymo & 1,117 & 1,107 & 1.01 & 1.02 \\
+Avride & 72 & 70 & 1.03 & 1.06 \\
+Zoox & 61 & 61 & 1.00 & 1.00 \\
+\midrule
+\textbf{Pooled} & \textbf{1,323} & \textbf{1,311} & \textbf{1.01} &
+\textbf{1.02} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Driverless reportable incidents do not recur on the same vehicle within a day.
+We regard this as a negative control rather than a disappointment. It shows the
+estimator returns unity when events genuinely do not recur on the unit of
+clustering, which is evidence that the values between $5$ and $13$ in
+Table~\ref{tab:empirical} reflect structure in the data rather than an artefact
+of the procedure. It also scopes the paper's claim: the correction matters for
+event classes that recur on a unit --- disengagements, near-misses, and the
+behavioural events that the fleet rate estimation literature actually
+models~\cite{terres2023behavioral} --- and not for the rarest driverless crash
+events at the vehicle-day level.
+
+\paragraph{An apparent effect that is not one.} Aggregating instead by reporting
+entity, city and day gives a ratio of $13.03$ pooled, and $14.82$ for Waymo
+alone. We do not report these as design effects, and the reason is instructive.
+A city-day contains every vehicle the operator ran in that city that day, so a
+cluster of five incidents may be five independent vehicles rather than five
+correlated events. The data settle the question directly: Waymo's city-days
+average $4.75$ incidents across $4.71$ distinct vehicles, and Avride's $4.00$
+across $3.89$. Almost every incident in a city-day comes from a different
+vehicle, so the apparent clustering is fleet size --- exposure --- and not shared
+context. Separating genuine city-level dependence from exposure would require
+vehicles or miles operated per city-day, which the SGO filings do not report. We
+record the ratio only as an upper bound, and note it as a trap for anyone
+applying this method to aggregated data without an exposure denominator.
 
 \section{Discussion and Limitations}
 
@@ -448,11 +599,26 @@ instrumentation cost. The point estimate is unaffected throughout --- what chang
 is the confidence attached to it, and the mileage at which a demonstration can
 honestly be declared complete.
 
-\paragraph{What this does not establish.} It does not establish that any particular
-fleet's design effect takes any particular value. Every number in
+\paragraph{Scope of the claim.} The two measurements together bound what is being
+claimed more tightly than either would alone. Design effects well above one occur
+in real filings, vary widely between programmes, and are computable from existing
+data --- but they are a property of an event class and a clustering unit, not of
+autonomous vehicles in general. For driverless reportable incidents at the
+vehicle-day, $\hat{D} = 1.02$ and the independence assumption is adequate. The
+correction earns its keep for the event classes that recur on a unit, which is
+the class the fleet rate estimation literature actually
+models~\cite{terres2023behavioral,chen2026confidence}. What $D$ equals for any
+particular programme and event definition remains a question that programme has
+to answer from its own logs; the contribution here is that the question is
+answerable and currently unasked.
+
+\paragraph{What this does not establish.} Every number in
 Section~\ref{sec:simulation} is generated from an assumed cluster-size
-distribution. We have not measured $D$ on real data, and until someone does, the
-practical magnitude of the problem in any specific programme is unknown.
+distribution rather than a fitted one, so the simulation demonstrates the
+mechanism rather than measuring the world. And the two data sources are
+observational: we can measure how reported events cluster, but not why, and in
+particular we cannot separate genuine operational clustering from clustering
+induced by how a given programme chooses to file.
 
 \paragraph{Direction of the error.} Under the process modelled here, ignoring
 clustering makes uncertainty statements overconfident, which is the unsafe

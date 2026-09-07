@@ -62,6 +62,29 @@ persistent about how a programme operates and logs.
 That spread is the paper's strongest argument for *measuring* D rather than
 assuming any value — including the values used in our own simulation.
 
+### The negative control
+
+Repeating the measurement on **NHTSA Standing General Order driverless incident
+reports** gives a vehicle-day D̂ of **1.02** (Waymo 1.02, Avride 1.06, Zoox 1.00,
+over 1,323 deduplicated events). Driverless reportable incidents do not recur on
+the same vehicle within a day.
+
+This is a control, not a disappointment. It shows the estimator returns unity
+when events genuinely don't recur on the clustering unit — evidence that the
+5–13 values above are structure in the data, not an artefact of the method. It
+also scopes the claim: the correction matters for event classes that recur on a
+unit (disengagements, near-misses, behavioural events — what the rate-estimation
+literature models), not for the rarest driverless crash events.
+
+**One trap worth knowing about.** Clustering the same SGO data by
+entity-city-day gives 13.03, which looks like a dramatic result and is not one. A
+city-day contains every vehicle the operator ran there that day, and Waymo's
+city-days average 4.75 incidents across **4.71 distinct vehicles** — almost every
+incident comes from a different car. That number measures fleet size, not shared
+context. Separating them needs vehicles or miles per city-day, which SGO doesn't
+report. `sgo_deff.py` prints the distinct-vehicle counts alongside the ratio so
+the confound is visible rather than buried.
+
 Full caveats are in Section 6.2 of the paper and in
 `estimate_deff_from_dmv.py`'s docstring. The short version: event class,
 reporting practice, choice of cluster unit, and limited coverage.
@@ -84,8 +107,10 @@ the correction requires no new instrumentation.
 | `make_figure.py` | Reproduces Figure 1 |
 | `coverage_vs_deff.pdf` / `.png` | Figure 1 |
 | `empirical_deff.py` | Reproduces Table 4 from the DMV CSVs |
+| `sgo_deff.py` | Reproduces Table 5 from the NHTSA SGO file, with both dedup steps and the exposure diagnostic |
 | `estimate_deff_from_dmv.py` | Single-file D̂ estimator, with the full caveat list |
-| `data/` | The CA DMV CSVs used (public records) |
+| `data/` | The CA DMV and NHTSA SGO source files (public records) |
+| `CITATION.cff` | Citation metadata |
 
 ## Reproducing
 
@@ -93,6 +118,7 @@ the correction requires no new instrumentation.
 python3 sim_clustered_av_rates.py                        # Tables 1-3
 python3 make_figure.py                                   # Figure 1
 python3 empirical_deff.py data/2023-*.csv data/2024-*.csv # Table 4
+python3 sgo_deff.py data/SGO-2021-01_Incident_Reports_ADS.csv  # Table 5
 ```
 
 Requires `numpy` (and `matplotlib` for the figure). Everything runs in under a

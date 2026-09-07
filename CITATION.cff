@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: >-
+  Clustered Safety Events and the Effective Sample Size in
+  Autonomous Vehicle Fleet Rate Estimation
+authors:
+  - family-names: "Emami Tabrizi"
+    given-names: "Pouria"
+type: software
+repository-code: "https://github.com/pouriaetab/av-clustered-rates"
+doi: 10.5281/zenodo.22646556
+keywords:
+  - autonomous vehicles
+  - safety validation
+  - design effect
+  - effective sample size
+  - clustered data
+  - rare event estimation
+abstract: >-
+  Autonomous vehicle fleet validation estimates rare-event rates per mile and
+  attaches confidence statements to them, treating logged events as independent
+  Poisson arrivals. Real fleet events arrive in clusters. Modelling the event
+  stream as a compound Poisson process shows that ignoring this inflates the
+  variance of the rate estimator by a design effect, so nominal confidence
+  intervals under-cover and required demonstration mileage is understated. The
+  correction substitutes an effective sample size estimated from the logs
+  themselves.
