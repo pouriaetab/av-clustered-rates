@@ -32,6 +32,19 @@ CLUSTER UNITS
                 -- coarser; catches "one bad location on one day" clustering
                    that the vehicle-day unit misses when a fleet rotates cars
 
+*** THE ENTITY-CITY-DAY NUMBER IS NOT A DESIGN EFFECT ***
+A design effect assumes the events inside a cluster are dependent draws from
+one shared context. A city-day lumps together every vehicle the operator ran in
+that city that day. If a fleet runs 500 cars in a city, a city-day with 5
+incidents may simply be 5 INDEPENDENT vehicles, not 5 correlated events -- and
+D_hat would then be measuring fleet size, i.e. exposure, not dependence.
+
+Separating the two requires exposure per city-day (vehicles or miles operated),
+which SGO does not report. So treat the entity-city-day figure as an UPPER
+BOUND on city-level dependence, never as a variance inflation factor to apply.
+The script prints distinct vehicles per city-day alongside it so the confound
+is visible rather than buried.
+
 EXPECT D_hat NEAR 1 AND READ IT HONESTLY
 -----------------------------------------
 SGO ADS incidents are far rarer per vehicle-day than disengagements. Two
@@ -165,6 +178,7 @@ def main(path):
     # --- cluster ------------------------------------------------------------
     veh_day = defaultdict(Counter)
     ent_city_day = defaultdict(Counter)
+    city_day_vehicles = defaultdict(lambda: defaultdict(set))
     no_vehicle_key = no_date = 0
 
     for r in rows:
@@ -183,6 +197,8 @@ def main(path):
             no_vehicle_key += 1
         city = (r.get(c_city) or "").strip().upper() if c_city else ""
         ent_city_day[ent][(city, date)] += 1
+        if vkey:
+            city_day_vehicles[ent][(city, date)].add(vkey)
 
     print(f"Rows without a usable incident date:  {no_date:,}")
     print(f"Rows without a usable vehicle key:    {no_vehicle_key:,}")
@@ -208,14 +224,35 @@ def main(path):
         return d
 
     d_veh = table("Cluster unit: vehicle-day", veh_day)
-    d_ecd = table("Cluster unit: entity-city-day", ent_city_day)
+    d_ecd = table("Cluster unit: entity-city-day  [UPPER BOUND, NOT A DESIGN "
+                  "EFFECT -- see below]", ent_city_day)
+
+    # Make the exposure confound visible: how many DISTINCT vehicles sit inside
+    # a city-day cluster? If that tracks the cluster size, the "clustering" is
+    # fleet size, not shared context.
+    print("\nDistinct vehicles per entity-city-day cluster")
+    print(f"{'Reporting entity':<34}{'events/cluster':>16}"
+          f"{'vehicles/cluster':>18}")
+    print("-" * 68)
+    for ent in sorted(ent_city_day, key=lambda e: -sum(ent_city_day[e].values())):
+        sizes = list(ent_city_day[ent].values())
+        if sum(sizes) < MIN_EVENTS:
+            continue
+        vsets = city_day_vehicles[ent]
+        if not vsets:
+            continue
+        mean_ev = sum(sizes) / len(sizes)
+        mean_veh = sum(len(s) for s in vsets.values()) / len(vsets)
+        print(f"{ent[:34]:<34}{mean_ev:>16.2f}{mean_veh:>18.2f}")
 
     print("\n%%% summary %%%")
-    for label, d in [("vehicle-day", d_veh), ("entity-city-day", d_ecd)]:
-        print(f"{label:<18} pooled D_hat = {d:.2f}  ->  CI too narrow by "
-              f"{d**0.5:.2f}x, mileage understated by {d:.2f}x")
-    print("\nRead the 'EXPECT D_hat NEAR 1' note in this file's docstring before "
-          "interpreting a value close to 1.")
+    print(f"vehicle-day       pooled D_hat = {d_veh:.2f}  ->  CI too narrow by "
+          f"{d_veh**0.5:.2f}x, mileage understated by {d_veh:.2f}x")
+    print(f"entity-city-day   raw ratio    = {d_ecd:.2f}  ->  UPPER BOUND only; "
+          f"not a variance inflation factor")
+    print("\nIf 'vehicles/cluster' above is close to 'events/cluster', the "
+          "city-day figure is\nmeasuring fleet size rather than shared context. "
+          "Read the docstring warnings\nbefore using either number.")
 
 
 if __name__ == "__main__":
