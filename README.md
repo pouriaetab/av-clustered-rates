@@ -25,9 +25,9 @@ and shows what ignoring the clustering costs:
    coverage `2Φ(z/√D) − 1`, where `D = E[K²]/E[K]` is the design effect. That is
    74% at D = 3 and 54% at D = 7.
 2. **Required demonstration mileage is understated by exactly D.** A programme
-   that computes its mileage target assuming independence stops with between a
-   third and a seventh of the evidence it believes it has. The error is in the
-   unsafe direction.
+   that sizes its mileage target under the independence assumption stops with
+   between a third and a seventh of the evidence implied by its own confidence
+   statement. The discrepancy runs in the less cautious direction.
 3. **Empirical-Bayes shrinkage weights `n/(n+k)` over-trust thin local data**,
    costing up to 7.8× in mean squared error here.
 
@@ -38,9 +38,9 @@ is estimated from the logs themselves. It requires no new instrumentation.
 
 The design effect is textbook survey statistics (Kish 1965, Cochran 1977), and
 cluster-robust variance estimation is standard. **No new mathematics is claimed.**
-The contribution is the transfer of that machinery into a literature that is not
-using it, the quantification of what its absence costs in this regime, and the
-observation that the correction is free.
+The contribution is to connect that machinery to a setting where it has not yet
+been applied, to quantify what its absence costs in this regime, and to note that
+the correction requires no new instrumentation.
 
 ## Files
 
@@ -84,6 +84,13 @@ and run:
 python3 estimate_deff_from_dmv.py 2023-disengagement-reports.csv
 ```
 
+Use the **"testing with a driver"** files rather than the **"driverless"** ones.
+The driverless filings are far too sparse for cluster-size estimation — the 2024
+driverless file holds roughly 21 rows from one manufacturer — while the
+with-driver files carry hundreds. The trade-off is that safety-driver
+disengagements are a different event class from driverless safety events, which
+is caveat 3 in the script's docstring and must be stated in any write-up.
+
 **Read the caveats in that script's docstring before quoting any number it
 prints.** Reporting practice varies by manufacturer and year, some filings
 aggregate rather than enumerate, the vehicle-day is one cluster choice among
@@ -92,13 +99,14 @@ driverless safety events.
 
 ## Related work this builds on and distinguishes from
 
-- **Fleet rate estimation that assumes independence:** Terres et al. (2023),
-  Chen et al. (2026), Zhao et al. (2025). Two of the three explicitly flag
-  dependence as out of scope.
+- **Fleet rate estimation under an independence assumption:** Terres et al.
+  (2023), Chen et al. (2026), Zhao et al. (2025). Two of the three are explicit
+  that dependence lies outside their scope — which is what makes this extension
+  straightforward to state.
 - **Dependence-aware traffic conflict extremes:** Songchitruksa & Tarko (2006),
   Zheng & Sayed (2019), and more recent self-/cross-exciting conditional POT
-  work. Section 2 of the paper argues why that machinery does not transfer
-  directly — it models one densely observed site, while fleet dependence is
+  work. Section 2 of the paper discusses why that machinery does not transfer
+  directly — it describes one densely observed site, while fleet dependence is
   nested across scene, drive, and software release.
 - **Dependence corrections elsewhere:** Ferro & Segers (2003) on declustering,
   Kish (1965) and Cochran (1977) on design effects, Liang & Zeger (1986) on
