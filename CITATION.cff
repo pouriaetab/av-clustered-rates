@@ -7,6 +7,9 @@ authors:
   - family-names: "Emami Tabrizi"
     given-names: "Pouria"
 type: software
+version: v1.1.0
+date-released: "2026-09-07"
+license: CC-BY-4.0
 repository-code: "https://github.com/pouriaetab/av-clustered-rates"
 doi: 10.5281/zenodo.22646556
 keywords:

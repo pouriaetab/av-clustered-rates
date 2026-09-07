@@ -1,0 +1,40 @@
+Copyright (c) 2026 Pouria Emami Tabrizi
+
+This work — the paper, its LaTeX source, the figures, and the accompanying
+analysis scripts — is licensed under the Creative Commons Attribution 4.0
+International License (CC BY 4.0).
+
+You are free to share and adapt the material for any purpose, including
+commercially, provided you give appropriate credit, provide a link to the
+license, and indicate if changes were made.
+
+To view a copy of this license, visit:
+
+    https://creativecommons.org/licenses/by/4.0/
+
+or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+
+This matches the license under which the author's earlier work, av-fleet-evt
+(DOI 10.5281/zenodo.21987203), is archived.
+
+---
+
+NOTE ON THE DATA FILES
+
+The contents of the data/ directory are NOT the author's work and are not
+covered by the license above. They are government public records, redistributed
+here unmodified so that the tables in the paper are exactly reproducible:
+
+  - data/2023-Autonomous-Vehicle-Disengagement-Reports-CSV.csv
+    data/2024-Autonomous-Vehicle-Disengagement-Reports-CSV-1.csv
+      California Department of Motor Vehicles, Autonomous Vehicle
+      Disengagement Reports. California public records.
+      https://www.dmv.ca.gov/portal/vehicle-industry-services/autonomous-vehicles/disengagement-reports/
+
+  - data/SGO-2021-01_Incident_Reports_ADS.csv
+      National Highway Traffic Safety Administration, Standing General Order
+      2021-01 incident reporting. United States government work.
+      https://www.nhtsa.gov/laws-regulations/standing-general-order-crash-reporting
+
+Anyone redistributing these files should consult the issuing agency's own terms
+rather than relying on this repository's license.

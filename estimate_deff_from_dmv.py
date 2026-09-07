@@ -32,7 +32,15 @@ CAVEATS -- read these before quoting any number this script prints
    design effects. The right unit depends on the failure mode being studied.
 3. Test-fleet disengagements under a safety driver are not the same event
    type as driverless safety events. Do not read these design effects as
-   directly applicable to a driverless deployment without argument.
+   directly applicable to a driverless deployment without argument. Note
+   that this cuts against using the DMV "driverless" files for this purpose:
+   they are far too sparse (the 2024 driverless file holds roughly 21 rows,
+   from a single manufacturer). The "testing with a driver" files carry the
+   row counts needed to estimate cluster sizes, at the cost of describing a
+   different event class.
+5. Even the larger files cover few manufacturers. Treat the output as an
+   illustrative anchor for those specific test fleets, not as an
+   industry-wide design effect.
 4. Manufacturers with very few reported events give unstable estimates; the
    script flags rows with fewer than 30 events.
 """

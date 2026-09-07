@@ -101,7 +101,7 @@ the correction requires no new instrumentation.
 
 | File | What it is |
 |---|---|
-| `paper.pdf` | The paper (11 pages) |
+| `paper.pdf` | The paper (12 pages) |
 | `paper.tex`, `references.bib` | Source and bibliography |
 | `sim_clustered_av_rates.py` | Reproduces Tables 1–3 and Proposition 1. numpy only. |
 | `make_figure.py` | Reproduces Figure 1 |
